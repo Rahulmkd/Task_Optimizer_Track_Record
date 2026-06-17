@@ -5,27 +5,27 @@ import { IJwtPayload } from "../types/index.js";
 
 export const verifyUser = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
+    const authHeader = req.header("Authorization");
+
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.replace("Bearer ", "")
+      : null;
 
     if (!token) {
-      throw new AppError("Unautohrized request", 401);
+      return next(new AppError("Unauthorized request", 401));
     }
 
     const decoded = verifyAccessToken(token) as IJwtPayload;
 
-    const user = {
+    req.user = {
       id: decoded.id,
       email: decoded.email,
       createdAt: decoded.createdAt,
       updatedAt: decoded.updatedAt,
     };
 
-    req.user = user;
-
     next();
-  } catch (error) {
+  } catch {
     next(new AppError("Invalid or expired token", 401));
   }
 };

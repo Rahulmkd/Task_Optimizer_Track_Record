@@ -116,11 +116,10 @@ export class AuthService {
       await this.userRepo.findRefreshToken(hashedRefreshToken);
 
     if (!existingRefreshToken) {
-      throw new AppError("Invalid refresh token", 401);
+      return true;
     }
 
     await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
-
     return true;
   }
 
@@ -153,7 +152,12 @@ export class AuthService {
     );
 
     if (!existingRefreshToken) {
-      throw new AppError("Refresh token not found", 404);
+      throw new AppError("Refresh token not found or already used", 401);
+    }
+
+    if (existingRefreshToken.expiresAt < new Date()) {
+      await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
+      throw new AppError("Refresh token has expired, please log in again", 401);
     }
 
     await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);

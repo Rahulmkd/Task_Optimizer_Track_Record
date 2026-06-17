@@ -5,32 +5,21 @@ import { NODE_ENV } from "../config/env.config.js";
 import { prisma } from "../lib/prisma.js";
 
 export const hashPassword = async (password: string): Promise<string> => {
-  return await bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 10);
 };
 
 export const comparePassword = async (
   password: string,
   hashedPassword: string,
 ): Promise<boolean> => {
-  return await bcrypt.compare(password, hashedPassword);
+  return bcrypt.compare(password, hashedPassword);
 };
 
-export const hashRefreshToken = (refreshToken: string) => {
+export const hashRefreshToken = (refreshToken: string): string => {
   return crypto.createHash("sha256").update(refreshToken).digest("hex");
 };
 
-export const setCookies = (
-  res: Response,
-  accessToken: string,
-  refreshToken: string,
-) => {
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
+export const setCookies = (res: Response, refreshToken: string) => {
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: NODE_ENV === "production",
@@ -40,12 +29,6 @@ export const setCookies = (
 };
 
 export const destroyCookies = (res: Response) => {
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: NODE_ENV === "production",
-    sameSite: "lax",
-  });
-
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: NODE_ENV === "production",
@@ -54,16 +37,12 @@ export const destroyCookies = (res: Response) => {
 };
 
 export const getUserById = async (userId: string) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
+  return prisma.user.findUnique({
+    where: { id: userId },
     select: {
       name: true,
       email: true,
       phoneNumber: true,
     },
   });
-
-  return user;
 };

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/constants";
 
 import {
   registerSchema,
@@ -55,6 +56,7 @@ export default function RegisterForm() {
     handleSubmit,
     watch,
     setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<RegisterUserFormData>({
     resolver: zodResolver(registerSchema),
@@ -70,6 +72,7 @@ export default function RegisterForm() {
   const password = watch("password");
 
   const onSubmit = async (data: RegisterUserFormData) => {
+    clearErrors("root");
     try {
       const payload = {
         name: data.name,
@@ -82,13 +85,13 @@ export default function RegisterForm() {
 
       toast.success("Account created successfully");
 
-      router.replace("/dashboard");
-    } catch (error: unknown) {
+      router.replace(ROUTES.DASHBOARD);
+    } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-            ? error
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
             : "Registration failed";
 
       toast.error(message);
@@ -145,7 +148,9 @@ export default function RegisterForm() {
             placeholder="you@company.com"
             className="pl-9"
             error={errors.email?.message}
-            {...register("email")}
+            {...register("email", {
+              onChange: () => clearErrors("root"),
+            })}
           />
         </div>
       </FormField>
@@ -182,7 +187,7 @@ export default function RegisterForm() {
           autoComplete="new-password"
           placeholder="Create a strong password"
           showStrength
-          value={password}
+          passwordValue={password}
           error={errors.password?.message}
           {...register("password")}
         />
@@ -228,7 +233,6 @@ export default function RegisterForm() {
           id="confirmPassword"
           autoComplete="new-password"
           placeholder="Repeat your password"
-          value={watch("confirmPassword")}
           error={errors.confirmPassword?.message}
           {...register("confirmPassword")}
         />

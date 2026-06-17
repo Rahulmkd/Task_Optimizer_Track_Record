@@ -1,6 +1,11 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { tokenService } from "./auth.token";
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+} from "axios";
 
+import { tokenService } from "./auth.token";
+import { API_PATHS } from "@/constants/api.path";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -12,27 +17,36 @@ interface RetryRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                AXIOS INSTANCE                              */
+/* -------------------------------------------------------------------------- */
+
 export const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = tokenService.getToken();
+/* -------------------------------------------------------------------------- */
+/*                          REQUEST INTERCEPTOR                               */
+/* -------------------------------------------------------------------------- */
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+api.interceptors.request.use((config) => {
+  const token = tokenService.getToken();
 
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+/* -------------------------------------------------------------------------- */
+/*                        REFRESH TOKEN CONTROL FLAGS                         */
+/* -------------------------------------------------------------------------- */
 
 let isRefreshing = false;
 
@@ -45,16 +59,30 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((promise) => {
     if (error) {
       promise.reject(error);
-    } else {
-      promise.resolve(token!);
+    } else if (token) {
+      promise.resolve(token);
     }
   });
 
   failedQueue = [];
 };
 
+/* -------------------------------------------------------------------------- */
+/*                           AUTH ROUTES SKIP LIST                            */
+/* -------------------------------------------------------------------------- */
+
+const AUTH_ROUTES = [
+  API_PATHS.AUTH.LOGIN,
+  API_PATHS.AUTH.REGISTER,
+  API_PATHS.AUTH.REFRESH_TOKEN,
+];
+
+/* -------------------------------------------------------------------------- */
+/*                          RESPONSE INTERCEPTOR                              */
+/* -------------------------------------------------------------------------- */
+
 api.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => response,
 
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryRequestConfig;
@@ -65,56 +93,69 @@ api.interceptors.response.use(
 
     const status = error.response?.status;
 
-    if (status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
+    const isAuthRoute = AUTH_ROUTES.some((route) =>
+      originalRequest.url?.includes(route),
+    );
 
-              resolve(api(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const response = await axios.post(
-          `${API_URL}/auth/refresh`,
-          {},
-          {
-            withCredentials: true,
-          },
-        );
-
-        const newAccessToken = response.data.accessToken;
-
-        tokenService.setToken(newAccessToken);
-
-        processQueue(null, newAccessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        return api(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-
-        tokenService.clearToken();
-
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    // Do NOT handle refresh for non-401 or auth routes
+    if (status !== 401 || originalRequest._retry || isAuthRoute) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    /* ---------------------------------------------------------------------- */
+    /*                          IF ALREADY REFRESHING                         */
+    /* ---------------------------------------------------------------------- */
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({
+          resolve: (token: string) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+
+            resolve(api(originalRequest));
+          },
+          reject,
+        });
+      });
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*                        START REFRESH PROCESS                           */
+    /* ---------------------------------------------------------------------- */
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const response = await api.post(
+        API_PATHS.AUTH.REFRESH_TOKEN,
+        {},
+        { withCredentials: true },
+      );
+
+      const newAccessToken = response.data.data.accessToken;
+
+      // save token
+      tokenService.setToken(newAccessToken);
+
+      // process queued requests
+      processQueue(null, newAccessToken);
+
+      if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      }
+
+      return api(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError);
+
+      tokenService.clearToken();
+
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );

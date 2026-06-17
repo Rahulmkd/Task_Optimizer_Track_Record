@@ -26,14 +26,10 @@ router.route("/login").post(validate(loginUserSchema), loginUserController);
 
 router.route("/me").get(verifyUser, getCurrentUserController);
 
-router
-  .route("/logout")
-  .post(verifyUser, validate(logoutUserSchema), logoutController);
+router.route("/logout").post(verifyUser, logoutController);
 
 router.route("/logout-all-devices").post(verifyUser, logoutAllDevices);
 
-router
-  .route("/refresh-token")
-  .post(validate(refreshTokenSchema), refreshTokenController);
+router.route("/refresh-token").post(refreshTokenController);
 
 export default router;

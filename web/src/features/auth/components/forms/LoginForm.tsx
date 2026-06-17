@@ -29,7 +29,6 @@ export default function LoginForm() {
     handleSubmit,
     setValue,
     setError,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<LoginUserFormData>({
     resolver: zodResolver(loginSchema),
@@ -45,8 +44,8 @@ export default function LoginForm() {
 
       toast.success("Welcome back!");
 
-      router.push("/dashboard");
-    } catch (error: unknown) {
+      router.replace("/home");
+    } catch (error) {
       const message =
         typeof error === "string"
           ? error
@@ -57,6 +56,7 @@ export default function LoginForm() {
       toast.error(message);
 
       setError("root", {
+        type: "server",
         message,
       });
     }
@@ -137,7 +137,6 @@ export default function LoginForm() {
             id="password"
             placeholder="Enter your password"
             className="pl-9"
-            value={watch("password")}
             error={errors.password?.message}
             {...register("password")}
           />

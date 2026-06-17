@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+// import { useEffect } from "react";
+// import { useAuth } from "@/hooks/useAuth";
 
-export function SessionRestorer() {
-  const { restoreSession } = useAuth();
+// export function SessionRestorer() {
+//   const { restoreSession } = useAuth();
 
-  useEffect(() => {
-    restoreSession();
-  }, [restoreSession]);
+//   useEffect(() => {
+//     restoreSession();
+//   }, [restoreSession]);
 
-  return null;
-}
+//   return null;
+// }
