@@ -52,7 +52,7 @@ export function DashboardNavbar() {
           className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"
         />
         <kbd className="text-xs text-white/20 border border-white/10 rounded px-1.5 py-0.5">
-          ⌘K
+          ⌘
         </kbd>
       </div>
 

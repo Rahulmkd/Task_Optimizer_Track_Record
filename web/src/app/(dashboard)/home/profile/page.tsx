@@ -54,7 +54,7 @@ export default function ProfilePage() {
 
           <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30">
             <Shield className="h-3 w-3" />
-            {user?.role === "admin" ? "Administrator" : "Member"}
+            Member
           </span>
 
           <div className="mt-6 pt-6 border-t border-white/5 text-left space-y-3">

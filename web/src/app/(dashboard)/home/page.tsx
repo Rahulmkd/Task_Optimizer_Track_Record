@@ -6,6 +6,7 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
 import { ActivityTable } from "@/components/dashboard/ActivityTable";
 import { useAppSelector } from "@/redux/hooks";
+import { QuickActions } from "@/components/dashboard/quick-actions/QuickActions";
 
 export default function HomePage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -27,12 +28,16 @@ export default function HomePage() {
           <span className="text-gradient">
             {user?.name?.split(" ")[0] || "there"}
           </span>{" "}
-          👋
         </h1>
         <p className="text-white/40 text-sm mt-1">
           Here&apos;s what&apos;s happening with your platform today.
         </p>
       </motion.div>
+
+      {/* QuickActions */}
+      <div className="mb-6">
+        <QuickActions />
+      </div>
 
       {/* Stats */}
       <div className="mb-6">

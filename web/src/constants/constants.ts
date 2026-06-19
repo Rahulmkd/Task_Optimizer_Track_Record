@@ -13,5 +13,5 @@ export const ROUTES = {
 
 export const DEMO_CREDENTIALS = {
   email: "admin@example.com",
-  password: "Admin@123",
+  password: "Rahul@123",
 } as const;

@@ -12,7 +12,7 @@ import { loginSchema, LoginUserFormData } from "../../schemas/auth.schema";
 import { useAppDispatch } from "@/redux/hooks";
 import { loginUserThunk } from "@/redux/slices/auth.slice";
 
-import { DEMO_CREDENTIALS } from "@/constants/constants";
+import { DEMO_CREDENTIALS, ROUTES } from "@/constants/constants";
 
 import { FormField } from "@/components/shared/FormField";
 import { PasswordInput } from "@/components/shared/PasswordInput";
@@ -44,7 +44,7 @@ export default function LoginForm() {
 
       toast.success("Welcome back!");
 
-      router.replace("/home");
+      router.replace(ROUTES.DASHBOARD);
     } catch (error) {
       const message =
         typeof error === "string"
