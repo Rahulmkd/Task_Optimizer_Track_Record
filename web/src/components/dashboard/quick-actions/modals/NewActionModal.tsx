@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/*                           NEW ACTION MODAL                                 */
+/* NEW ACTION MODAL                                  */
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useRef, useState } from "react";
@@ -9,9 +9,14 @@ import { ModalPanel } from "./ModalPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useCreateActionMutation } from "@/features/actions/services/action.service";
+import { quickActions } from "../data/quickActionsData";
+import { NewActionButton } from "../components/NewActionButton";
 
 export function NewActionModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -25,10 +30,22 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const handleSave = () => {
+  const [createAction, { isLoading }] = useCreateActionMutation();
+
+  const handleSave = async () => {
     if (!name.trim()) return;
-    // TODO: persist new action
-    onClose();
+
+    setError(null);
+
+    try {
+      await createAction({
+        actionName: name.trim(),
+      }).unwrap();
+
+      onClose();
+    } catch {
+      setError("Couldn't create this action. Please try again.");
+    }
   };
 
   return (
@@ -65,20 +82,60 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
               id="na-name"
               placeholder="e.g. Log Meditation"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (error) setError(null);
+              }}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </FormField>
 
+          {/* Action buttons grid card panel */}
+
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-white/30 px-0.5">
+              Or choose a quick preset
+            </p>
+
+            <div className="max-h-64 overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                {quickActions.map((action, i) => (
+                  <NewActionButton
+                    key={action.label}
+                    action={action}
+                    index={i}
+                    onClick={() => {
+                      setName(action.label);
+                      if (error) setError(null);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-xs font-medium text-red-400 px-0.5 pt-0.5">
+              {error}
+            </p>
+          )}
+
+          {/* Action Footer Buttons */}
           <div className="flex gap-3 pt-1">
-            <Button variant="outline" className="flex-1 h-11" onClick={onClose}>
+            <Button
+              variant="outline"
+              className="flex-1 h-11"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
             <Button
               variant="gradient"
               className="flex-1 h-11"
               onClick={handleSave}
-              disabled={!name.trim()}
+              disabled={!name.trim() || isLoading}
+              loading={isLoading}
             >
               Create action
             </Button>

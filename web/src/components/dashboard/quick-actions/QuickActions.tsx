@@ -18,6 +18,7 @@ import {
 } from "@/features/tasks/services/task.service";
 
 import { ITask } from "@/features/tasks/types/task.types";
+import { useGetActionQuery } from "@/features/actions/services/action.service";
 
 /* -------------------------------------------------------------------------- */
 /*                              SERVER → UI MAPPING                           */
@@ -52,6 +53,11 @@ export function QuickActions() {
     toggleTask(String(id));
   };
 
+  const { data: actionLabel } = useGetActionQuery();
+
+  const ActionNames = actionLabel?.map((item) => item.actionName);
+  console.log(ActionNames);
+
   return (
     <div className="p-4 lg:p-6 space-y-5">
       {/* ------------------------------------------------------------------ */}
@@ -79,35 +85,48 @@ export function QuickActions() {
 
           {/* ── Create New Action button ─────────────────────────────── */}
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{
+              scale: 1.02,
+              y: -1,
+            }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowNewAction(true)}
             className={cn(
-              "relative overflow-hidden flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold text-white",
-              "bg-gradient-to-r from-violet-600 to-blue-600",
-              "shadow-[0_0_0_1px_rgba(139,92,246,0.3),0_4px_18px_rgba(109,40,217,0.25)]",
-              "hover:shadow-[0_0_0_1px_rgba(139,92,246,0.5),0_6px_24px_rgba(109,40,217,0.4)]",
-              "transition-shadow duration-200",
-              "before:absolute before:inset-0 before:translate-x-[-110%] before:skew-x-[-20deg]",
-              "before:bg-gradient-to-r before:from-transparent before:via-white/15 before:to-transparent",
-              "hover:before:translate-x-[110%] before:transition-transform before:duration-500",
+              "group relative overflow-hidden flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-semibold text-white",
+              "bg-gradient-to-r from-violet-600 to-indigo-600",
+              "border border-violet-500/30",
+              "shadow-[0_4px_16px_rgba(109,40,217,0.25)]",
+              "hover:shadow-[0_6px_24px_rgba(109,40,217,0.45)]",
+              "transition-all duration-300",
             )}
           >
-            <Plus className="h-3.5 w-3.5 relative z-10" />
-            <span className="relative z-10">New Action</span>
+            {/* Shimmer Sweep Effect */}
+            <span
+              className={cn(
+                "absolute inset-0 -translate-x-full skew-x-[-20deg]",
+                "bg-gradient-to-r from-transparent via-white/20 to-transparent",
+                "group-hover:translate-x-full transition-transform duration-700 ease-out",
+              )}
+            />
+
+            {/* Button Content */}
+            <Plus className="h-3.5 w-3.5 relative z-10 transition-transform duration-300 group-hover:rotate-90" />
+            <span className="relative z-10 tracking-tight">New Action</span>
           </motion.button>
         </div>
 
         {/* Action buttons grid */}
         <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, i) => (
-            <ActionButton
-              key={action.label}
-              action={action}
-              index={i}
-              onClick={() => setActiveModal(action)}
-            />
-          ))}
+          {quickActions.map((action, i) =>
+            ActionNames?.includes(action.label) ? (
+              <ActionButton
+                key={action.label}
+                action={action}
+                index={i}
+                onClick={() => setActiveModal(action)}
+              />
+            ) : null,
+          )}
         </div>
       </motion.div>
 

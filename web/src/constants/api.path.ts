@@ -1,4 +1,5 @@
 const AUTH_BASE = "/api/v1/auth";
+const ACTIONS_BASE = "/api/v1/action";
 const TASKS_BASE = "/api/v1/task";
 
 export const API_PATHS = {
@@ -13,6 +14,11 @@ export const API_PATHS = {
     REFRESH_TOKEN: `${AUTH_BASE}/refresh-token`,
   },
 
+  ACTIONS: {
+    BASE: ACTIONS_BASE,
+    CREATE: `${ACTIONS_BASE}`,
+    GET_ALL: `${ACTIONS_BASE}`,
+  },
   TASKS: {
     BASE: TASKS_BASE,
     CREATE: `${TASKS_BASE}`,
