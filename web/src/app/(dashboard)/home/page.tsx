@@ -2,9 +2,6 @@
 
 import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/layouts/DashboardShell";
-import { StatsCards } from "@/components/dashboard/StatsCards";
-import { ChartsSection } from "@/components/dashboard/ChartsSection";
-import { ActivityTable } from "@/components/dashboard/ActivityTable";
 import { useAppSelector } from "@/redux/hooks";
 import { QuickActions } from "@/components/dashboard/quick-actions/QuickActions";
 
@@ -38,19 +35,6 @@ export default function HomePage() {
       <div className="mb-6">
         <QuickActions />
       </div>
-
-      {/* Stats */}
-      <div className="mb-6">
-        <StatsCards />
-      </div>
-
-      {/* Charts */}
-      <div className="mb-6">
-        <ChartsSection />
-      </div>
-
-      {/* Activity */}
-      <ActivityTable />
     </DashboardShell>
   );
 }
