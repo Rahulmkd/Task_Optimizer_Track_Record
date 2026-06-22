@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Zap, GitFork, Globe } from "lucide-react";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME } from "@/constants/constants";
+
 
 const footerLinks = {
   Product: ["Features", "Pricing", "Changelog", "Roadmap"],
