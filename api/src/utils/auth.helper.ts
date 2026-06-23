@@ -19,11 +19,13 @@ export const hashRefreshToken = (refreshToken: string): string => {
   return crypto.createHash("sha256").update(refreshToken).digest("hex");
 };
 
+const isProduction = NODE_ENV === "production";
+
 export const setCookies = (res: Response, refreshToken: string) => {
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 };

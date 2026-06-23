@@ -18,7 +18,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push(ROUTES.LOGIN);
+      router.replace(ROUTES.LOGIN);
     }
   }, [isAuthenticated, isLoading, router]);
 
