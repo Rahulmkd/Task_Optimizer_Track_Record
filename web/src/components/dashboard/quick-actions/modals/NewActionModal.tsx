@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { Sparkles, X } from "lucide-react";
-import { ModalPanel } from "./ModalPanel";
+import { ModelPanel } from "./ModelPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
 
   return (
     <Backdrop onClick={onClose}>
-      <ModalPanel>
+      <ModelPanel>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
@@ -141,7 +141,7 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
             </Button>
           </div>
         </div>
-      </ModalPanel>
+      </ModelPanel>
     </Backdrop>
   );
 }

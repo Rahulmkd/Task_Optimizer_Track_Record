@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { TimeInput } from "../components/TimeInput";
 import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModalPanel } from "./ModalPanel";
+import { ModelPanel } from "./ModelPanel";
 import { cn } from "@/lib/utils";
 import { useCreateTaskMutation } from "@/features/tasks/services/task.service";
 
@@ -64,7 +64,7 @@ export function QuickEntryModal({
 
   return (
     <Backdrop onClick={onClose}>
-      <ModalPanel>
+      <ModelPanel>
         {/* ── Gradient header ── */}
         <div
           className={cn(
@@ -147,7 +147,7 @@ export function QuickEntryModal({
             </Button>
           </div>
         </div>
-      </ModalPanel>
+      </ModelPanel>
     </Backdrop>
   );
 }

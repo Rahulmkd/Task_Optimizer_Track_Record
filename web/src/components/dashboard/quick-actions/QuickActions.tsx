@@ -25,6 +25,7 @@ import {
   useGetActionsQuery,
 } from "@/features/actions/services/action.service";
 import { IAction } from "@/features/actions/types/action.types";
+import { TaskSummaryModel } from "./modals/TaskSummaryModel";
 
 /* -------------------------------------------------------------------------- */
 /*                              SERVER → UI MAPPING                           */
@@ -56,6 +57,7 @@ const toUiAction = (action: IAction, index: number): QuickAction => {
 export function QuickActions() {
   const [activeModal, setActiveModal] = useState<QuickAction | null>(null);
   const [showNewAction, setShowNewAction] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   const { data: tasksData, isLoading, isError } = useGetTasksQuery();
@@ -125,7 +127,7 @@ export function QuickActions() {
             onClick={() => setShowNewAction(true)}
             className={cn(
               "group relative overflow-hidden flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-semibold text-white",
-              "bg-gradient-to-r from-violet-600 to-indigo-600",
+              "bg-linear-to-r from-violet-600 to-indigo-600",
               "border border-violet-500/30",
               "shadow-[0_4px_16px_rgba(109,40,217,0.25)]",
               "hover:shadow-[0_6px_24px_rgba(109,40,217,0.45)]",
@@ -136,7 +138,7 @@ export function QuickActions() {
             <span
               className={cn(
                 "absolute inset-0 -translate-x-full skew-x-[-20deg]",
-                "bg-gradient-to-r from-transparent via-white/20 to-transparent",
+                "bg-linear-to-r from-transparent via-white/20 to-transparent",
                 "group-hover:translate-x-full transition-transform duration-700 ease-out",
               )}
             />
@@ -185,6 +187,10 @@ export function QuickActions() {
       {/* ------------------------------------------------------------------ */}
       {/*                          TODAY'S TASKS CARD                        */}
       {/* ------------------------------------------------------------------ */}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* TODAY'S TASKS CARD                        */}
+      {/* ------------------------------------------------------------------ */}
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -232,8 +238,8 @@ export function QuickActions() {
                 className={cn(
                   "h-full rounded-full",
                   progressPercent === 100
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-                    : "bg-gradient-to-r from-violet-500 to-blue-500",
+                    ? "bg-linear-to-r from-emerald-500 to-teal-400"
+                    : "bg-linear-to-r from-violet-500 to-blue-500",
                 )}
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
@@ -277,6 +283,39 @@ export function QuickActions() {
               />
             ))}
         </div>
+
+        {/* ── Task Footer / Button ─────────────────── */}
+        <div className="p-3 pt-0 flex justify-end">
+          <motion.button
+            whileHover={{
+              scale: 1.02,
+              y: -1,
+            }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowSummary(true)}
+            className={cn(
+              "group relative overflow-hidden flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-semibold text-white",
+              "bg-linear-to-r from-emerald-700 to-teal-600",
+              "border border-violet-500/30",
+              "shadow-[0_4px_16px_rgba(109,40,217,0.25)]",
+              "hover:shadow-[0_6px_24px_rgba(109,40,217,0.45)]",
+              "transition-all duration-300",
+            )}
+          >
+            {/* Shimmer Sweep Effect */}
+            <span
+              className={cn(
+                "absolute inset-0 -translate-x-full skew-x-[-20deg]",
+                "bg-linear-to-r from-transparent via-white/20 to-transparent",
+                "group-hover:translate-x-full transition-transform duration-700 ease-out",
+              )}
+            />
+
+            {/* Button Content */}
+            <Plus className="h-3.5 w-3.5 relative z-10 transition-transform duration-300 group-hover:rotate-90" />
+            <span className="relative z-10 tracking-tight">View Summary</span>
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* ------------------------------------------------------------------ */}
@@ -294,6 +333,12 @@ export function QuickActions() {
       <AnimatePresence>
         {showNewAction && (
           <NewActionModal onClose={() => setShowNewAction(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSummary && (
+          <TaskSummaryModel onClose={() => setShowSummary(false)} />
         )}
       </AnimatePresence>
 
